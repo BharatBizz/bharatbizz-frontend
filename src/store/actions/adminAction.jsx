@@ -1,4 +1,4 @@
-import { saveUser,removeUser } from "../reducers/userSlice";
+import { saveUser, removeUser} from "../reducers/adminSlice";
 import axios from '../../config/axios'
 import { notification } from 'antd';
 

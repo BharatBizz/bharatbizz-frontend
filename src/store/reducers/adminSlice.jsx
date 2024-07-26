@@ -32,6 +32,6 @@ export const adminSlice = createSlice({
 });
 
 
-export const { saveUser, saveDashBoardInfo, setLoading,} = adminSlice.actions;
+export const { saveUser, saveDashBoardInfo, setLoading,removeUser} = adminSlice.actions;
 
 export default adminSlice.reducer;
