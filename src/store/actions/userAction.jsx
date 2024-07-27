@@ -85,12 +85,33 @@ try {
 
 export const asyncFetchHistory = (userId, page, limit) => async (dispatch) => {
     try {
+
+        const token=localStorage.getItem('token')
         const response = await axios.get(`/user/getHistory/${userId}?page=${page}&limit=${limit}`,{
             headers: { Authorization: `Bearer ${token}` }
 
         });
-        dispatch(saveHistory(response.data));
+        await dispatch(saveHistory(response.data));
     } catch (error) {
         console.log(error);
     }
 };
+
+
+export const asyncRequestWithdrawalAmount = (userId, amount) => async (dispatch) => {
+    try {
+        // Ensure the endpoint and request payload are correct
+        const response = await axios.post('/user/requestWithdraw', {
+            userId,
+            amount
+        },
+    {
+        headers:{Authorization:`Bearer ${token}`}
+    });
+        return response.data; // Return data if needed
+    } catch (error) {
+        console.error('Error in API request:', error);
+        throw error; // Rethrow the error to handle it in the component
+    }
+};
+

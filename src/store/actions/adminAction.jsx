@@ -1,15 +1,16 @@
-import { saveUser, removeUser} from "../reducers/adminSlice";
+import { saveUser, removeUser, saveAllTransactions} from "../reducers/adminSlice";
 import axios from '../../config/axios'
 import { notification } from 'antd';
 
 
-
+const token=localStorage.getItem('token')||null
 export const asyncCurrentAdmin = (token) => async (dispatch, getState) => {
     try {
         const response = await axios.post('/admin/currentAdmin', null, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        await dispatch(saveUser(response.data.admin));
+        console.log(response)
+        await dispatch(saveUser(response.data.user));
     } catch (error) {
         console.error(error);
     }
@@ -52,6 +53,7 @@ export const asyncAdminLogin = (data, navigate) => async (dispatch, getState) =>
         const expiresInMilliseconds = res.data.expiresIn;
         const expirationTime = Date.now() + expiresInMilliseconds;
         localStorage.setItem('token', res.data.token);
+
         await navigate('/dashboard')
     } catch (error) {
         if (error.response && error.response.status === 401) {
@@ -93,5 +95,16 @@ export const asyncUserRegister = (data) => async (dispatch, getState) => {
             description: error.response?.data?.message || 'An error occurred during registration. Please try again later.',
             placement: 'topRight', // Optional, specify where you want the notification to appear
         });
+    }
+};
+
+export const asyncFetchAllTransactions = (page = 1, limit = 10) => async (dispatch) => {
+    try {
+        const response = await axios.get(`/admin/getAllTransactions?page=${page}&limit=${limit}`,{
+            headers:{Authorization:`Bearer ${token}`}
+        });
+        dispatch(saveAllTransactions(response.data));
+    } catch (error) {
+        console.log(error);
     }
 };

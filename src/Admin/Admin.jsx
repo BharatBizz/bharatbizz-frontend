@@ -104,7 +104,6 @@ export const AdminLoginForm = () => {
     const dispatch = useDispatch();
     const navigate=useNavigate()
     const handleSubmit = async(values) => {
-      // Call API or perform login logic here
       console.log('Login form submitted:', values);
       await dispatch(asyncAdminLogin({...values},navigate))
     };
