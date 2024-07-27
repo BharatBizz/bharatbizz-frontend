@@ -1,9 +1,9 @@
 import {Routes,Route} from 'react-router-dom';
 import { AdminLoginForm, AdminRegistrationForm } from './Admin/Admin';
 import UnauthorizedPage from './components/Unauthorized';
-import { Dashboard, ViewTransactions } from './Admin/Dashboard';
+import { Dashboard, ViewTransactions, WithdrawalRequest } from './Admin/Dashboard';
 import {  InvestorRegistrationForm,InvestorLoginForm } from './Investor/Auth';
-import { Deposit, InvestorDashboard, Package, ViewHistory, Wallet, Withdraw } from './Investor/Dashboard';
+import { ActivePackages, Deposit, InvestorDashboard, Package, ViewHistory, Wallet, Withdraw, YourTeam } from './Investor/Dashboard';
 import { useSelector } from 'react-redux';
 const Routing=()=>{
     const { user, isAuth } = useSelector((state) => state.user)
@@ -26,9 +26,11 @@ const Routing=()=>{
         <Route path='/view-history' element={isInvestor?<ViewHistory/>:<UnauthorizedPage/>}/>
         <Route path='/view-transactions' element={isAdmin?<ViewTransactions/>:<UnauthorizedPage/>}/>
         <Route path='/wallet' element={isInvestor?<Wallet/>:<UnauthorizedPage/>}/>
+        <Route path='/active-packages' element={isInvestor?<ActivePackages/>:<UnauthorizedPage/>}/>
         <Route path='/choose-package' element={isInvestor?<Package/>:<UnauthorizedPage/>}/>
         <Route path='/request-withdrawal' element={isInvestor?<Withdraw/>:<UnauthorizedPage/>}/>
-        
+        <Route path='/withdrawal-request' element={isAdmin?<WithdrawalRequest/>:<UnauthorizedPage/>}/>
+        <Route path='/team' element={isInvestor?<YourTeam/>:<UnauthorizedPage/>}/>
     </Routes>
     
     </>

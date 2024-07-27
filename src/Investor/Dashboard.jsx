@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowUpOutlined, HistoryOutlined, MoneyCollectOutlined, TeamOutlined,ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
-import { asyncInvestorDeposit,asyncFetchHistory, asyncRequestWithdrawalAmount } from '../store/actions/userAction';
+import { asyncInvestorDeposit,asyncFetchHistory, asyncRequestWithdrawalAmount, asyncGetReferredUsers, asyncCurrentInvestor, asyncSaveSelectedPackage, asyncFetchActivePackages } from '../store/actions/userAction';
 import { Table, Spin, Alert } from 'antd'; // Import Ant Design components
 import { BiWallet } from 'react-icons/bi';
 import { BsWallet2 } from 'react-icons/bs';
@@ -55,6 +55,7 @@ export const InvestorDashboard = () => {
       { title: 'Request Withdrawal', icon: <MoneyCollectOutlined />, description: 'Request to withdraw funds', path: '/request-withdrawal' },
       { title: 'Your Team Members', icon: <TeamOutlined />, description: 'View and manage your team', path: '/team' },
       { title: 'Wallet', icon: <BsWallet2 />, description: 'View Your Wallet', path: '/wallet' },
+      { title: 'Active Packages', icon: <GoPackage />, description: 'View Active Packages', path: '/active-packages' },
       { title: 'Choose Package', icon: <GoPackage />, description: 'Select your preferred investment package', path: '/choose-package' },
       { title: 'More Options', icon: <TeamOutlined />, description: 'Explore additional options', path: '/more' },
     ];
@@ -306,68 +307,91 @@ navigate('/withdraw')    };
 
 
 export const Package = () => {
-    const [selectedPackage, setSelectedPackage] = useState(null);
-    const { user } = useSelector((state) => state.user); // Assuming your user state contains wallet
-    const navigate = useNavigate(); // Initialize useNavigate
+  const dispatch = useDispatch();
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const { user } = useSelector((state) => state.user); // Assuming your user state contains wallet
+  const navigate = useNavigate(); // Initialize useNavigate
+  const token = localStorage.getItem('token');
 
-    const packages = [
-        2500, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 750000, 1000000
-    ];
+  useEffect(() => {
+    dispatch(asyncCurrentInvestor(token));
+  }, [dispatch, token]);
 
-    const handlePackageSelect = (amount) => {
-        if (user?.wallet >= amount) {
-            setSelectedPackage(amount);
-        } else {
-            Modal.error({
-                title: 'Insufficient Funds',
-                content: `You need at least ₹${amount.toLocaleString()} to select this package.`,
-            });
-        }
-    };
+  const packages = [
+    2500, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 750000, 1000000
+  ];
 
-    return (
-        <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
-            <div className="w-full max-w-5xl mb-6 flex items-center">
-                <Button 
-                    type="link" 
-                    icon={<ArrowLeftOutlined />} 
-                    onClick={() => navigate(-1)} // Navigate back to the previous page
-                    className="text-blue-600"
-                >
-                    Back
-                </Button>
-            </div>
-            <h1 className="text-3xl font-bold mb-6 text-blue-600">Choose an Investment Package</h1>
-            <p className="text-lg text-gray-700 mb-6">
-                Your current wallet balance: <span className="font-semibold text-blue-600">₹{user?.wallet?.toLocaleString()}</span>
+  const handlePackageSelect = (amount) => {
+    if (user?.wallet >= amount) {
+      Modal.confirm({
+        title: 'Confirm Package Selection',
+        content: `Are you sure you want to choose the package of ₹${amount.toLocaleString()}?`,
+        onOk: () => handlePackageConfirmation(amount),
+      });
+    } else {
+      Modal.error({
+        title: 'Insufficient Funds',
+        content: `You need at least ₹${amount.toLocaleString()} to select this package.`,
+      });
+    }
+  };
+
+  const handlePackageConfirmation = async (amount) => {
+    try {
+     await dispatch(asyncSaveSelectedPackage(user?.userId,amount,user?.referredByUserID));
+      setSelectedPackage(amount);
+    } catch (error) {
+      Modal.error({
+        title: 'Error',
+        content: 'There was an error processing your request. Please try again later.',
+      });
+    }
+  };
+
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
+      <div className="w-full max-w-5xl mb-6 flex items-center">
+        <Button
+          type="link"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(-1)} // Navigate back to the previous page
+          className="text-blue-600"
+        >
+          Back
+        </Button>
+      </div>
+      <h1 className="text-3xl font-bold mb-6 text-blue-600">Choose an Investment Package</h1>
+      <p className="text-lg text-gray-700 mb-6">
+        Your current wallet balance: <span className="font-semibold text-blue-600">₹{user?.wallet?.toLocaleString()}</span>
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+        {packages.map((amount, index) => (
+          <div
+            key={index}
+            className={`p-6 rounded-lg shadow-lg text-center cursor-pointer transition-transform transform hover:scale-105 ${
+              selectedPackage === amount ? 'border-blue-600 bg-blue-50' : 'border-gray-300 bg-white'
+            } border ${
+              user?.wallet >= amount ? 'hover:border-blue-500' : 'opacity-60 cursor-not-allowed'
+            }`}
+            onClick={() => handlePackageSelect(amount)}
+          >
+            <p className={`text-2xl font-semibold mb-2 ${
+              selectedPackage === amount ? 'text-blue-600' : 'text-gray-800'
+            }`}>
+              ₹{amount.toLocaleString()}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
-                {packages.map((amount, index) => (
-                    <div 
-                        key={index}
-                        className={`p-6 rounded-lg shadow-lg text-center cursor-pointer transition-transform transform hover:scale-105 ${
-                            selectedPackage === amount ? 'border-blue-600 bg-blue-50' : 'border-gray-300 bg-white'
-                        } border ${
-                            user?.wallet >= amount ? 'hover:border-blue-500' : 'opacity-60 cursor-not-allowed'
-                        }`}
-                        onClick={() => handlePackageSelect(amount)}
-                    >
-                        <p className={`text-2xl font-semibold mb-2 ${
-                            selectedPackage === amount ? 'text-blue-600' : 'text-gray-800'
-                        }`}>
-                            ₹{amount.toLocaleString()}
-                        </p>
-                        <p className={`text-lg ${
-                            selectedPackage === amount ? 'text-blue-600' : 'text-gray-600'
-                        }`}>
-                            {selectedPackage === amount ? 'Selected' : user?.wallet >= amount ? 'Select' : 'Insufficient Funds'}
-                        </p>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
+            <p className={`text-lg ${
+              selectedPackage === amount ? 'text-blue-600' : 'text-gray-600'
+            }`}>
+              {selectedPackage === amount ? 'Selected' : user?.wallet >= amount ? 'Select' : 'Insufficient Funds'}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
+
 
 
 
@@ -459,3 +483,80 @@ export const Withdraw = () => {
         </div>
     );
 };
+
+
+
+export const YourTeam = () => {
+  const dispatch = useDispatch();
+  const { user, team } = useSelector((state) => state.user);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      dispatch(asyncGetReferredUsers(user.userId))
+        .catch((error) => setError(error))
+        .finally(() => setLoading(false));
+    }
+  }, [dispatch, user]);
+
+  if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="loader">Loading...</div></div>;
+  if (error) return <div className="flex justify-center items-center min-h-screen"><div className="text-red-500">Error: {error.message}</div></div>;
+
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-center">Your Team</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+          <thead className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+            <tr>
+              <th className="p-4 text-left font-semibold">User ID</th>
+              <th className="p-4 text-left font-semibold">First Name</th>
+              <th className="p-4 text-left font-semibold">Last Name</th>
+              <th className="p-4 text-left font-semibold">Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {team.map((member, index) => (
+              <tr key={member.userId} className={`border-t ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                <td className="p-4">{member.userId}</td>
+                <td className="p-4">{member.firstName}</td>
+                <td className="p-4">{member.lastName}</td>
+                <td className="p-4">{member.email}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+
+export const ActivePackages = () => {
+  const dispatch = useDispatch();
+  const { user, activePackages } = useSelector((state) => state.user);
+
+  useEffect(() => {
+      if (user) {
+          dispatch(asyncFetchActivePackages(user.userId));
+      }
+  }, [dispatch, user]);
+
+  return (
+      <div className="p-6 bg-gray-100 min-h-screen">
+          <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">Your Active Packages</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {activePackages?.map((pkg, index) => (
+                  <div key={index} className="bg-white rounded-lg shadow-md p-6 flex flex-col items-center">
+                      <p className="text-xl font-semibold text-gray-800">Package Amount</p>
+                      <p className="text-2xl font-bold text-blue-600 mb-4">₹{pkg.packageAmount.toLocaleString()}</p>
+                      <p className="text-gray-600">Activated At:</p>
+                      <p className="text-gray-800">{new Date(pkg.activatedAt).toLocaleDateString()}</p>
+                  </div>
+              ))}
+          </div>
+      </div>
+  );
+};
+

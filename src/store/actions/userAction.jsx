@@ -1,6 +1,6 @@
 import { notification } from "antd";
 import axios from "../../config/axios";
-import { saveHistory, saveInvestor } from "../reducers/userSlice";
+import { saveActivePackages, saveHistory, saveInvestor, saveYourTeam } from "../reducers/userSlice";
 const token=localStorage.getItem('token')||null
 console.log(token)
 export const asyncCurrentInvestor = (token) => async (dispatch, getState) => {
@@ -115,3 +115,37 @@ export const asyncRequestWithdrawalAmount = (userId, amount) => async (dispatch)
     }
 };
 
+export const asyncGetReferredUsers=(userId)=>async(dispatch,getState)=>{
+    try {
+        const response=await axios.get(`/user/getYourTeam/${userId}`,{
+            headers:{Authorization:`Bearer ${token}`}
+        })
+        await dispatch(saveYourTeam(response.data.team))
+    } catch (error) {
+        console.log(error)        
+    }
+}
+
+export const asyncSaveSelectedPackage=(userId,amount,referredByUserID)=>async(dispatch,getState)=>{
+    try {
+        const token=localStorage.getItem('token')
+        console.log(token)
+        const response=await axios.post('/user/saveSelectedPackage',{userId,amount,referredByUserID},{
+            headers:{Authorization:`Bearer ${token}`}
+        })
+        await dispatch(asyncCurrentInvestor(token))
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const asyncFetchActivePackages=(userId)=>async(dispatch,getState)=>{
+    try {
+        const response=await axios.get(`/user/getActivePackages/${userId}`,{
+            headers:{Authorization:`Bearer ${token}`}
+        })
+        await dispatch(saveActivePackages(response.data.data))
+    } catch (error) {
+        console.log(error)
+    }
+}

@@ -97,7 +97,7 @@ export const AdminRegistrationForm = () => {
         </Card>
       </div>
     );
-  };
+};
 
 export const AdminLoginForm = () => {
     const [form] = Form.useForm();
@@ -156,4 +156,4 @@ export const AdminLoginForm = () => {
         </Card>
       </div>
     );
-  };
+};

@@ -65,6 +65,14 @@ export const InvestorRegistrationForm = () => {
             >
               <Input placeholder="Enter your User ID" className="p-2 border rounded" readOnly />
             </Form.Item>
+
+            <Form.Item
+              label="Referred By (USER ID)"
+              name="referredByUserID"
+              rules={[{ required: true, message: 'Please input Referred By (User ID)!' }]}
+            >
+              <Input placeholder="Enter referred by (User ID)" className="p-2 border rounded"  />
+            </Form.Item>
             <Form.Item
               label="Email ID"
               name="email"

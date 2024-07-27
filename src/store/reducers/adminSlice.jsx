@@ -3,11 +3,13 @@ const savedUser = localStorage.getItem("user");
 
 const initialState = {
     loading: false,
+    error: null,
     isAuthe: savedUser ? true : false,
     admin: savedUser ? JSON.parse(savedUser) : null,
     dashboardinfo: null,
     totalPages: 0,
-    transactions:[] 
+    transactions:[] ,
+    withdrawalRequests:[]
 
 }
 
@@ -26,6 +28,9 @@ export const adminSlice = createSlice({
         setLoading: (state, action) => {
             state.loading = action.payload;
         },
+        setError: (state, action) => {
+            state.error = action.payload;
+        },
         removeUser:(state,action)=>{
             localStorage.removeItem("user");
             state.admin = null;
@@ -34,12 +39,15 @@ export const adminSlice = createSlice({
         saveAllTransactions:(state,action)=>{
             state.transactions=action.payload.history
             state.pagination=action.payload.pagination
+        },
+        saveWithdrawalRequests:(state,action)=>{
+            state.withdrawalRequests=action.payload
         }
       
     },
 });
 
 
-export const { saveUser, saveDashBoardInfo,saveAllTransactions, setLoading,removeUser} = adminSlice.actions;
+export const { saveWithdrawalRequests,saveUser, saveDashBoardInfo,saveAllTransactions, setLoading,removeUser} = adminSlice.actions;
 
 export default adminSlice.reducer;

@@ -1,4 +1,4 @@
-import { saveUser, removeUser, saveAllTransactions} from "../reducers/adminSlice";
+import { saveUser, removeUser, saveAllTransactions,saveWithdrawalRequests, setLoading} from "../reducers/adminSlice";
 import axios from '../../config/axios'
 import { notification } from 'antd';
 
@@ -108,3 +108,41 @@ export const asyncFetchAllTransactions = (page = 1, limit = 10) => async (dispat
         console.log(error);
     }
 };
+
+export const asyncGetWithDrawalRequest = () => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const response = await axios.get('/admin/getAllWithDrawalRequests',
+            {
+                headers: { Authorization: `Bearer ${token}` }
+            }
+        );
+        dispatch(saveWithdrawalRequests(response.data.data));
+    } catch (error) {
+        console.error(error);
+        dispatch(setError('Failed to fetch withdrawal requests'));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
+
+export const updateRequestStatus=(id,status)=>async(dispatch,getState)=>{
+    try {
+        console.log(status)
+        const response=await axios.patch(`/admin/updateWithdrawRequest/${id}`,{status},{
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        notification.success({
+            message: 'Success',
+            description: 'Request updated successfully!',
+            placement: 'topRight',
+        });
+        await dispatch(asyncGetWithDrawalRequest())
+    } catch (error) {
+        notification.error({
+            message: 'Error',
+            description: 'Failed to update request.',
+            placement: 'topRight',
+        });
+    }
+}
