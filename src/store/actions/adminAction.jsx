@@ -63,20 +63,30 @@ export const asyncAdminLogin = (data, navigate) => async (dispatch, getState) =>
     }
 };
 
-export const asyncLogoutAdmin = () => async (dispatch, getState) => {
+export const asyncLogoutAdmin = () => async (dispatch) => {
     try {
         const res = await axios.get('/admin/logout');
         await dispatch(removeUser());
-        toast.success('Logged out.');
+        notification.success({
+            message: 'Logout Successful',
+            description: 'You have successfully logged out.',
+        });
     } catch (error) {
         if (error.response && error.response.status === 401) {
-            toast.error('Logout Error.');
+            notification.error({
+                message: 'Logout Failed',
+                description: 'Unauthorized access. Logout failed.',
+            });
         } else {
+            notification.error({
+                message: 'Logout Failed',
+                description: 'An error occurred. Please try again.',
+            });
             console.error(error);
-            toast.error('An error occurred. Please try again later.');
         }
     }
 }
+
 
 export const asyncUserRegister = (data) => async (dispatch, getState) => {
     try {
@@ -146,3 +156,4 @@ export const updateRequestStatus=(id,status)=>async(dispatch,getState)=>{
         });
     }
 }
+

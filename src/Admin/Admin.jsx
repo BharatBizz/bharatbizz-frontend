@@ -100,60 +100,78 @@ export const AdminRegistrationForm = () => {
 };
 
 export const AdminLoginForm = () => {
-    const [form] = Form.useForm();
-    const dispatch = useDispatch();
-    const navigate=useNavigate()
-    const handleSubmit = async(values) => {
+  const [form] = Form.useForm();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (values) => {
       console.log('Login form submitted:', values);
-      await dispatch(asyncAdminLogin({...values},navigate))
-    };
-  
-    return (
+      setLoading(true);
+      try {
+          await dispatch(asyncAdminLogin({ ...values }, navigate));
+      } catch (error) {
+          notification.error({
+              message: 'Login Failed',
+              description: 'An error occurred while logging in. Please try again.',
+          });
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  return (
       <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-        <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
-          <Title level={2} style={{ textAlign: 'center', marginBottom: '24px' }}>Admin Login Form</Title>
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-          >
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Email"
-                  name="email"
-                  rules={[{ required: true, type: 'email', message: 'Please input a valid email!' }]}
-                >
-                  <Input placeholder="Enter your email" />
-                </Form.Item>
-              </Col>
-              <Col span={24}>
-                <Form.Item
-                  label="Password"
-                  name="password"
-                  rules={[{ required: true, message: 'Please input your password!' }]}
-                  hasFeedback
-                >
-                  <Input.Password placeholder="Enter your password" />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Divider />
-            <Form.Item>
-              <Button type="primary" htmlType="submit" block style={{ marginTop: '16px' }}>
-                Log In
-              </Button>
-            </Form.Item>
-            <Row justify="space-between">
-              <Col>
-                <Link to="/admin/forgetpassword">Forgot password?</Link>
-              </Col>
-              <Col>
-                <Text>Don't have an account? <Link to="/admin/registration">Register here</Link></Text>
-              </Col>
-            </Row>
-          </Form>
-        </Card>
+          <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px' }}>Admin Login Form</Title>
+              <Form
+                  form={form}
+                  layout="vertical"
+                  onFinish={handleSubmit}
+              >
+                  <Row gutter={16}>
+                      <Col span={24}>
+                          <Form.Item
+                              label="Email"
+                              name="email"
+                              rules={[{ required: true, type: 'email', message: 'Please input a valid email!' }]}
+                          >
+                              <Input placeholder="Enter your email" />
+                          </Form.Item>
+                      </Col>
+                      <Col span={24}>
+                          <Form.Item
+                              label="Password"
+                              name="password"
+                              rules={[{ required: true, message: 'Please input your password!' }]}
+                              hasFeedback
+                          >
+                              <Input.Password placeholder="Enter your password" />
+                          </Form.Item>
+                      </Col>
+                  </Row>
+                  <Divider />
+                  <Form.Item>
+                      <Button
+                          type="primary"
+                          htmlType="submit"
+                          block
+                          style={{ marginTop: '16px' }}
+                          loading={loading} // Add loading effect
+                      >
+                          Log In
+                      </Button>
+                  </Form.Item>
+                  <Row justify="space-between">
+                      <Col>
+                          <Link to="/admin/forgetpassword">Forgot password?</Link>
+                      </Col>
+                      <Col>
+                          <Text>Don't have an account? <Link to="/admin/registration">Register here</Link></Text>
+                      </Col>
+                  </Row>
+              </Form>
+          </Card>
       </div>
-    );
+  );
 };

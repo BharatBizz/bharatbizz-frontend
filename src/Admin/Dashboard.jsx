@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Table, Pagination, Spin, Alert } from 'antd';
 import { asyncFetchAllTransactions, asyncGetWithDrawalRequest,updateRequestStatus } from '../store/actions/adminAction';
-import { BiMoney } from 'react-icons/bi';
+import { BiLogOut, BiMoney } from 'react-icons/bi';
+import { asyncLogoutAdmin } from '../store/actions/adminAction';
 
 const { Title } = Typography;
 
@@ -18,11 +19,14 @@ const cardVariants = {
 
 export const Dashboard = () => {
     const navigate = useNavigate();
-
+    const dispatch=useDispatch()
     const handleCardClick = (path) => {
         navigate(path);
     };
-
+    const handleLogout=async()=>{
+        await dispatch(asyncLogoutAdmin())
+        await navigate('/admin/login')
+    }
     return (
         <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
             <Title level={2} style={{ marginBottom: '24px', textAlign: 'center' }}>
@@ -150,6 +154,26 @@ export const Dashboard = () => {
                             cover={<TransactionOutlined style={{ fontSize: '24px', color: '#722ed1' }} />}
                         >
                             <p>View and manage transactions of a particular user.</p>
+                        </Card>
+                    </motion.div>
+                </Col>
+
+                <Col xs={24} sm={12} md={8}>
+                    <motion.div
+                        variants={cardVariants}
+                        initial="hidden"
+                        animate="visible"
+                        whileHover="hover"
+                        onClick={() => handleLogout('/admin/logout')}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <Card
+                            title="Logout"
+                            bordered={false}
+                            style={{ marginBottom: '16px', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}
+                            cover={<BiLogOut style={{ fontSize: '24px', color: '#722ed1' }} />}
+                        >
+                            <p>Click here to logout</p>
                         </Card>
                     </motion.div>
                 </Col>
