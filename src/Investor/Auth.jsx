@@ -1,9 +1,9 @@
 // InvestorRegistrationForm.js
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Typography, Card, notification } from 'antd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { asyncInvestorLogin, asyncInvestorRegister, asyncResetPassword, asyncSendForgetLink } from '../store/actions/userAction';
+import { asyncCurrentInvestor, asyncInvestorLogin, asyncInvestorRegister, asyncResetPassword, asyncSendForgetLink, asyncUpdateProfile } from '../store/actions/userAction';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
@@ -301,5 +301,108 @@ export const ResetPassword = () => {
               </form>
           </div>
       </div>
+  );
+};
+
+
+export const Profile = () => {
+  const dispatch = useDispatch();
+  const { user, isAuth } = useSelector((state) => state.user);
+  const [form] = Form.useForm();
+  
+  useEffect(() => {
+    if (isAuth) {
+      dispatch(asyncCurrentInvestor(user._id));
+    }
+  }, [dispatch, isAuth, user._id]);
+
+  useEffect(() => {
+    if (user) {
+      form.setFieldsValue({
+        userId: user.userId,
+        referredByUserID: user.referredByUserID,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        email: user.email,
+        location: user.location,
+      });
+    }
+  }, [user, form]);
+
+  const handleUpdateProfile = async (values) => {
+    try {
+      await dispatch(asyncUpdateProfile(user._id, values));
+  
+    } catch (error) {
+    console.log(error)
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold text-center mb-6">Your Profile</h2>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleUpdateProfile}
+          className="space-y-4"
+        >
+          <Form.Item
+            label="User ID"
+            name="userId"
+            rules={[{ required: true, message: 'Please input your User ID!' }]}
+          >
+            <Input placeholder="Enter your User ID" disabled />
+          </Form.Item>
+          <Form.Item
+            label="Referred By User ID"
+            name="referredByUserID"
+          >
+            <Input placeholder="Enter referred by User ID" disabled />
+          </Form.Item>
+          <Form.Item
+            label="First Name"
+            name="firstName"
+            rules={[{ required: true, message: 'Please input your first name!' }]}
+          >
+            <Input placeholder="Enter your first name" />
+          </Form.Item>
+          <Form.Item
+            label="Last Name"
+            name="lastName"
+            rules={[{ required: true, message: 'Please input your last name!' }]}
+          >
+            <Input placeholder="Enter your last name" />
+          </Form.Item>
+          <Form.Item
+            label="Phone"
+            name="phone"
+            rules={[{ required: true, message: 'Please input your phone number!' }]}
+          >
+            <Input placeholder="Enter your phone number" />
+          </Form.Item>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[{ required: true, message: 'Please input your email!' }]}
+          >
+            <Input placeholder="Enter your email" type="email" />
+          </Form.Item>
+          <Form.Item
+            label="Location"
+            name="location"
+          >
+            <Input placeholder="Enter your location" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Update Profile
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+    </div>
   );
 };

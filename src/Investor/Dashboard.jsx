@@ -4,13 +4,14 @@ import { motion } from 'framer-motion';
 import { ArrowUpOutlined, HistoryOutlined, MoneyCollectOutlined, TeamOutlined,ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
-import { asyncInvestorDeposit,asyncFetchHistory, asyncRequestWithdrawalAmount, asyncGetReferredUsers, asyncCurrentInvestor, asyncSaveSelectedPackage, asyncFetchActivePackages } from '../store/actions/userAction';
+import { asyncInvestorDeposit,asyncFetchHistory, asyncRequestWithdrawalAmount, asyncGetReferredUsers, asyncCurrentInvestor, asyncSaveSelectedPackage, asyncFetchActivePackages, asyncLogout } from '../store/actions/userAction';
 import { Table, Spin, Alert } from 'antd'; // Import Ant Design components
-import { BiWallet } from 'react-icons/bi';
+import { BiLogOut, BiWallet } from 'react-icons/bi';
 import { BsWallet2 } from 'react-icons/bs';
 import { GoPackage } from 'react-icons/go';
 import Modal from 'antd/es/modal/Modal';
-import { IoWalletOutline } from 'react-icons/io5';
+import { IoLogOutOutline, IoWalletOutline } from 'react-icons/io5';
+import { CgProfile } from 'react-icons/cg';
 
 // Animation variants
 const cardVariants = {
@@ -42,59 +43,66 @@ const hoverVariants = {
   },
 };
 
+
 export const InvestorDashboard = () => {
-    const navigate = useNavigate();
-  
-    const handleCardClick = (path) => {
-      navigate(path);
-    };
-  
-    const cards = [
-      { title: 'Deposit', icon: <ArrowUpOutlined />, description: 'Add funds to your account', path: '/deposit' },
-      { title: 'View History', icon: <HistoryOutlined />, description: 'Check your transaction history', path: '/view-history' },
-      { title: 'Request Withdrawal', icon: <MoneyCollectOutlined />, description: 'Request to withdraw funds', path: '/request-withdrawal' },
-      { title: 'Your Team Members', icon: <TeamOutlined />, description: 'View and manage your team', path: '/team' },
-      { title: 'Wallet', icon: <BsWallet2 />, description: 'View Your Wallet', path: '/wallet' },
-      { title: 'Active Packages', icon: <GoPackage />, description: 'View Active Packages', path: '/active-packages' },
-      { title: 'Choose Package', icon: <GoPackage />, description: 'Select your preferred investment package', path: '/choose-package' },
-      { title: 'More Options', icon: <TeamOutlined />, description: 'Explore additional options', path: '/more' },
-    ];
-  
-    return (
-      <div className="p-6 bg-gray-100 min-h-screen flex justify-center items-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
-          {cards.map((card, index) => (
-            <motion.div
-              key={index}
-              variants={cardVariants}
-              initial="hidden"
-              animate="visible"
-              custom={index}
-              whileHover="hover"
-              className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center text-center cursor-pointer"
-              onClick={() => handleCardClick(card.path)}
-            >
-              <Card bordered={false} className="w-full h-full flex flex-col items-center">
-                <motion.div
-                  className="text-3xl mb-3 text-indigo-600 flex justify-center items-center"
-                  variants={hoverVariants}
-                >
-                  {card.icon}
-                </motion.div>
-                <h3 className="text-xl font-semibold mb-1 text-gray-800">
-                  {card.title}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {card.description}
-                </p>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    );
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleCardClick = (path) => {
+    navigate(path);
   };
-  
+
+  const handleLogout =async () => {
+    await dispatch(asyncLogout(navigate));
+  };
+
+  const cards = [
+    { title: 'Deposit', icon: <ArrowUpOutlined />, description: 'Add funds to your account', path: '/deposit' },
+    { title: 'View History', icon: <HistoryOutlined />, description: 'Check your transaction history', path: '/view-history' },
+    { title: 'Request Withdrawal', icon: <MoneyCollectOutlined />, description: 'Request to withdraw funds', path: '/request-withdrawal' },
+    { title: 'Your Team Members', icon: <TeamOutlined />, description: 'View and manage your team', path: '/team' },
+    { title: 'Wallet', icon: <BsWallet2 />, description: 'View Your Wallet', path: '/wallet' },
+    { title: 'Active Packages', icon: <GoPackage />, description: 'View Active Packages', path: '/active-packages' },
+    { title: 'Profile', icon: <CgProfile />, description: 'View or Update Profile', path: '/profile' },
+    { title: 'Choose Package', icon: <GoPackage />, description: 'Select your preferred investment package', path: '/choose-package' },
+    { title: 'More Options', icon: <TeamOutlined />, description: 'Explore additional options', path: '/more' },
+    { title: 'Logout', icon: <IoLogOutOutline />, description: 'Logout from your account', path: '/logout' },
+  ];
+
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen flex justify-center items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+        {cards.map((card, index) => (
+          <motion.div
+            key={index}
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            custom={index}
+            whileHover="hover"
+            className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center text-center cursor-pointer"
+            onClick={() => card.path === '/logout' ? handleLogout() : handleCardClick(card.path)}
+          >
+            <Card bordered={false} className="w-full h-full flex flex-col items-center">
+              <motion.div
+                className="text-3xl mb-3 text-indigo-600 flex justify-center items-center"
+                variants={hoverVariants}
+              >
+                {card.icon}
+              </motion.div>
+              <h3 className="text-xl font-semibold mb-1 text-gray-800">
+                {card.title}
+              </h3>
+              <p className="text-sm text-gray-600">
+                {card.description}
+              </p>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 
   

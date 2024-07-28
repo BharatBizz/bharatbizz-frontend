@@ -1,10 +1,11 @@
 import { notification } from "antd";
 import axios from "../../config/axios";
-import { saveActivePackages, saveHistory, saveInvestor, saveYourTeam } from "../reducers/userSlice";
+import { removeInvestor, saveActivePackages, saveHistory, saveInvestor, saveYourTeam } from "../reducers/userSlice";
 const token=localStorage.getItem('token')||null
 console.log(token)
 export const asyncCurrentInvestor = (token) => async (dispatch, getState) => {
     try {
+        console.log(token)
         const response = await axios.post('/user/currentInvestor', null, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -68,6 +69,16 @@ export const asyncInvestorLogin = (data, navigate) => async (dispatch, getState)
     }
 };
 
+export const asyncLogout=(navigate)=>async(dispatch,getState)=>{
+    try {
+        const response=await axios.get('/user/logout')
+       await dispatch(removeInvestor())
+        navigate('/')
+    } catch (error) {
+        console.log(error)
+
+    }
+}
 
 export const asyncInvestorDeposit=(amount,userId)=>async(dispatch,getState)=>{
 try {
@@ -185,3 +196,25 @@ export const asyncResetPassword = (id, password) => async (dispatch, getState) =
       });
     }
 };
+
+export const asyncUpdateProfile=(userId,userData)=>async(dispatch,getState)=>{
+    try {
+        const token=localStorage.getItem('token')
+        console.log(token)
+        const response = await axios.put(`/user/updateProfile/${userId}`, userData,{
+            headers:{Authorization:`Bearer ${token}`}
+        });
+       await dispatch(asyncCurrentInvestor(token));
+        notification.success({
+          message: 'Profile Updated',
+          description: 'Your profile has been updated successfully.',
+          placement: 'topRight',
+        });
+      } catch (error) {
+        notification.error({
+          message: 'Update Failed',
+          description: 'There was an error updating your profile. Please try again.',
+          placement: 'topRight',
+        });
+      }
+}
