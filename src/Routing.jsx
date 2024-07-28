@@ -2,9 +2,10 @@ import {Routes,Route} from 'react-router-dom';
 import { AdminLoginForm, AdminRegistrationForm } from './Admin/Admin';
 import UnauthorizedPage from './components/Unauthorized';
 import { Dashboard, ViewTransactions, WithdrawalRequest } from './Admin/Dashboard';
-import {  InvestorRegistrationForm,InvestorLoginForm } from './Investor/Auth';
+import {  InvestorRegistrationForm,InvestorLoginForm, ForgetPassword, ResetPassword } from './Investor/Auth';
 import { ActivePackages, Deposit, InvestorDashboard, Package, ViewHistory, Wallet, Withdraw, YourTeam } from './Investor/Dashboard';
 import { useSelector } from 'react-redux';
+import { NotFound } from './components/NotFound';
 const Routing=()=>{
     const { user, isAuth } = useSelector((state) => state.user)
     const { admin, isAuthe } = useSelector((state) => state.admin)
@@ -31,6 +32,9 @@ const Routing=()=>{
         <Route path='/request-withdrawal' element={isInvestor?<Withdraw/>:<UnauthorizedPage/>}/>
         <Route path='/withdrawal-request' element={isAdmin?<WithdrawalRequest/>:<UnauthorizedPage/>}/>
         <Route path='/team' element={isInvestor?<YourTeam/>:<UnauthorizedPage/>}/>
+        <Route path='/forget-link/:id' element={isInvestor?<ResetPassword/>:<UnauthorizedPage/>}/>
+        <Route path='/forget-password' element={isInvestor?<ForgetPassword/>:<UnauthorizedPage/>}/>
+        <Route path='*' element={<NotFound/>}/>
     </Routes>
     
     </>

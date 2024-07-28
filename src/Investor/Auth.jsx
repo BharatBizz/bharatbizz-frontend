@@ -1,11 +1,11 @@
 // InvestorRegistrationForm.js
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Typography, Card, notification } from 'antd';
 import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
-import { asyncInvestorLogin, asyncInvestorRegister } from '../store/actions/userAction';
+import { asyncInvestorLogin, asyncInvestorRegister, asyncResetPassword, asyncSendForgetLink } from '../store/actions/userAction';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 const { Title } = Typography;
 const generateUserId = () => {
@@ -103,10 +103,12 @@ export const InvestorRegistrationForm = () => {
 
 
 
+
 export const InvestorLoginForm = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
+
   const openNotification = (type, message) => {
     notification[type]({
       message,
@@ -116,10 +118,8 @@ export const InvestorLoginForm = () => {
   };
 
   const handleSubmit = async (values) => {
-    
-      await dispatch(asyncInvestorLogin(values,navigate));
-      form.resetFields();
-    
+    await dispatch(asyncInvestorLogin(values, navigate));
+    form.resetFields();
   };
 
   return (
@@ -168,6 +168,11 @@ export const InvestorLoginForm = () => {
                 prefix={<LockOutlined className="text-gray-500" />}
               />
             </Form.Item>
+            <div className="flex justify-end mb-4">
+              <Link to="/forget-password" className="text-blue-600 hover:underline text-sm">
+                Forget Password?
+              </Link>
+            </div>
             <Form.Item>
               <Button
                 type="primary"
@@ -182,5 +187,119 @@ export const InvestorLoginForm = () => {
         </Card>
       </motion.div>
     </div>
+  );
+};
+
+
+
+export const ForgetPassword = () => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError('');
+      setLoading(true);
+
+      try {
+          await dispatch(asyncSendForgetLink({ email }));
+      } catch (err) {
+          setError('Error sending reset link. Please try again.');
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full">
+              <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                  <h2 className="text-3xl font-bold text-center mb-6">Forgot Password</h2>
+                  <form onSubmit={handleSubmit}>
+                      <div className="mb-4">
+                          <label htmlFor="email" className="block text-sm font-semibold mb-1">Email Address</label>
+                          <input
+                              type="email"
+                              id="email"
+                              name="email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="Enter your email address"
+                              className="w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500"
+                              required
+                          />
+                      </div>
+                      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                      <button
+                          type="submit"
+                          className={`w-full bg-blue-500 text-white px-4 py-2 rounded focus:outline-none ${loading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-blue-600'
+                              } transition duration-200`}
+                          disabled={loading}
+                      >
+                          {loading ? 'Submitting...' : 'Submit'}
+                      </button>
+                  </form>
+              </div>
+          </div>
+      </div>
+  );
+};
+
+export const ResetPassword = () => {
+  const { id } = useParams();
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+
+  const handleResetPassword = async (e) => {
+      e.preventDefault();
+      if (password.length < 8) {
+          toast.error('Password must be at least 8 characters long.');
+          return;
+      }
+
+      setLoading(true);
+      try {
+          await dispatch(asyncResetPassword(id, password));
+          setLoading(false);
+          setPassword(''); // Clear the input field
+      } catch (error) {
+          setLoading(false);
+      }
+  };
+
+  return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full bg-white p-8 rounded-md shadow-md">
+              <h2 className="text-3xl font-semibold mb-4 text-center text-gray-900">Reset Password</h2>
+
+              <form onSubmit={handleResetPassword}>
+                  <div className="mb-4">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                          New Password:
+                      </label>
+                      <input
+                          type="password"
+                          id="password"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+                          value={password}
+                          placeholder='Minimum 8 characters'
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                      />
+                  </div>
+
+                  <button
+                      type="submit"
+                      className={`w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition duration-200 focus:outline-none ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={loading}
+                  >
+                      {loading ? 'Resetting...' : 'Reset Password'}
+                  </button>
+              </form>
+          </div>
+      </div>
   );
 };

@@ -149,3 +149,39 @@ export const asyncFetchActivePackages=(userId)=>async(dispatch,getState)=>{
         console.log(error)
     }
 }
+
+
+
+
+export const asyncSendForgetLink = (email) => async (dispatch, getState) => {
+    try {
+      const response = await axios.post('/user/send-mail', email );
+  
+      notification.success({
+        message: 'Success',
+        description: 'Password reset link has been sent to your email.',
+      });
+    } catch (error) {
+      notification.error({
+        message: 'Error',
+        description: 'Something went wrong. Please try again.',
+      });
+    }
+  };
+
+
+export const asyncResetPassword = (id, password) => async (dispatch, getState) => {
+    try {
+      const response = await axios.post(`/user/forget-link/${id}`, { password });
+  
+      notification.success({
+        message: 'Success',
+        description: 'Password reset successfully.',
+      });
+    } catch (error) {
+      notification.error({
+        message: 'Error',
+        description: 'Error resetting password.',
+      });
+    }
+};
