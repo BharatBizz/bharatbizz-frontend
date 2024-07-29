@@ -9,9 +9,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 const { Title } = Typography;
 const generateUserId = () => {
-  const prefix = 'BHARATBIZZ';
+  const prefix = 'BBZ';
   const randomNumber = crypto.getRandomValues(new Uint32Array(1))[0] % 10000; // Generates a random 4-digit number
-  return `${prefix}${randomNumber.toString().padStart(4, '0')}`;
+  return `${prefix}${randomNumber.toString().padStart(6, '0')}`;
 };
 
 export const InvestorRegistrationForm = () => {
