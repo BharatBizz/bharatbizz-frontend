@@ -318,7 +318,7 @@ export const Package = () => {
   const dispatch = useDispatch();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const { user } = useSelector((state) => state.user); // Assuming your user state contains wallet
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -346,7 +346,7 @@ export const Package = () => {
 
   const handlePackageConfirmation = async (amount) => {
     try {
-     await dispatch(asyncSaveSelectedPackage(user?.userId,amount,user?.referredByUserID));
+      await dispatch(asyncSaveSelectedPackage(user?.userId, amount, user?.referredByUserID));
       setSelectedPackage(amount);
     } catch (error) {
       Modal.error({
