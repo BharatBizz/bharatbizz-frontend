@@ -9,7 +9,6 @@ import { Table, Spin, Alert } from 'antd'; // Import Ant Design components
 import { BiLogOut, BiWallet } from 'react-icons/bi';
 import { BsWallet2 } from 'react-icons/bs';
 import { GoPackage } from 'react-icons/go';
-import Modal from 'antd/es/modal/Modal';
 import { IoLogOutOutline, IoWalletOutline } from 'react-icons/io5';
 import { CgProfile } from 'react-icons/cg';
 
@@ -313,11 +312,45 @@ navigate('/withdraw')    };
 
 
 
+const Modal = ({ isVisible, title, content, onConfirm, onCancel }) => {
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+        <div className="p-4 border-b">
+          <h2 className="text-xl font-semibold">{title}</h2>
+        </div>
+        <div className="p-4">
+          <p>{content}</p>
+        </div>
+        <div className="flex justify-end p-4 border-t">
+          <button
+            onClick={onCancel}
+            className="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded mr-2"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 
 export const Package = () => {
   const dispatch = useDispatch();
   const [selectedPackage, setSelectedPackage] = useState(null);
-  const { user } = useSelector((state) => state.user); // Assuming your user state contains wallet
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+  const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -331,16 +364,19 @@ export const Package = () => {
 
   const handlePackageSelect = (amount) => {
     if (user?.wallet >= amount) {
-      Modal.confirm({
+      setModalContent({
         title: 'Confirm Package Selection',
         content: `Are you sure you want to choose the package of ₹${amount.toLocaleString()}?`,
-        onOk: () => handlePackageConfirmation(amount),
+        onConfirm: () => handlePackageConfirmation(amount),
       });
+      setIsModalVisible(true);
     } else {
-      Modal.error({
+      setModalContent({
         title: 'Insufficient Funds',
         content: `You need at least ₹${amount.toLocaleString()} to select this package.`,
+        onConfirm: () => setIsModalVisible(false),
       });
+      setIsModalVisible(true);
     }
   };
 
@@ -348,11 +384,14 @@ export const Package = () => {
     try {
       await dispatch(asyncSaveSelectedPackage(user?.userId, amount, user?.referredByUserID));
       setSelectedPackage(amount);
+      setIsModalVisible(false);
     } catch (error) {
-      Modal.error({
+      setModalContent({
         title: 'Error',
         content: 'There was an error processing your request. Please try again later.',
+        onConfirm: () => setIsModalVisible(false),
       });
+      setIsModalVisible(true);
     }
   };
 
@@ -362,7 +401,7 @@ export const Package = () => {
         <Button
           type="link"
           icon={<ArrowLeftOutlined />}
-          onClick={() => navigate(-1)} // Navigate back to the previous page
+          onClick={() => navigate(-1)}
           className="text-blue-600"
         >
           Back
@@ -396,9 +435,16 @@ export const Package = () => {
           </div>
         ))}
       </div>
+      <Modal
+        isVisible={isModalVisible}
+        title={modalContent.title}
+        content={modalContent.content}
+        onConfirm={modalContent.onConfirm}
+        onCancel={() => setIsModalVisible(false)}
+      />
     </div>
   );
-};
+};  
 
 
 
