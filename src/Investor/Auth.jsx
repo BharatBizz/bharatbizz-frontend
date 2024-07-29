@@ -104,10 +104,12 @@ export const InvestorRegistrationForm = () => {
 
 
 
+
 export const InvestorLoginForm = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const openNotification = (type, message) => {
     notification[type]({
@@ -118,8 +120,16 @@ export const InvestorLoginForm = () => {
   };
 
   const handleSubmit = async (values) => {
-    await dispatch(asyncInvestorLogin(values, navigate));
-    form.resetFields();
+    setLoading(true);
+    try {
+      await dispatch(asyncInvestorLogin(values, navigate));
+      form.resetFields();
+      openNotification('success', 'Login successful!');
+    } catch (error) {
+      openNotification('error', 'Login failed! Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -178,9 +188,10 @@ export const InvestorLoginForm = () => {
                 type="primary"
                 htmlType="submit"
                 block
+                loading={loading}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg"
               >
-                Login
+                {loading ? 'Logging in...' : 'Login'}
               </Button>
             </Form.Item>
           </Form>
@@ -189,7 +200,6 @@ export const InvestorLoginForm = () => {
     </div>
   );
 };
-
 
 
 export const ForgetPassword = () => {
@@ -246,6 +256,7 @@ export const ForgetPassword = () => {
       </div>
   );
 };
+
 
 export const ResetPassword = () => {
   const { id } = useParams();
