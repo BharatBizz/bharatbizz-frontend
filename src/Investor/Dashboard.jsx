@@ -70,7 +70,7 @@ const icons = [
 const MobileCardView = ({ onCardClick }) => {
   return (
     <>
-     <div className="pt-[20px] pb-10 p-4 bg-gradient-to-b from-black via-gray-800 to-gray-500 rounded-lg shadow-lg">
+     <div className="pt-[20px] pb-10 p-4 bg-gradient-to-t from-black via-gray-800 to-gray-500 rounded-lg shadow-lg">
       <div className="grid grid-cols-2 gap-4">
        
         {icons.map((item, index) => (
@@ -583,7 +583,7 @@ const ProfileCard = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <MdEmail className="text-blue-600" />
-                <Text strong className="text-gray-600 break-keep	">Email:</Text>
+                <Text strong className="text-gray-600 ">Email:</Text>
                 <Text className="text-gray-800 break-keep	">{user.email}</Text>
               </div>
               <div className="flex items-center space-x-2">
