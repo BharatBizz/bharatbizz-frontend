@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add this to your global CSS file */
+/* Add this to your global CSS file */
+.no-scrollbar::-webkit-scrollbar {
+    height: 0;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .tricolor-bg {
+    background: linear-gradient(180deg, #ff9933 33%, #ffffff 33%, #ffffff 66%, #138808 66%);
+  }
+  

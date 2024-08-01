@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Form, Input, message, Pagination } from 'antd';
+import { Avatar, Button, Card, Form, Input, message, Pagination } from 'antd';
 import { motion } from 'framer-motion';
 import { ArrowUpOutlined, HistoryOutlined, MoneyCollectOutlined, TeamOutlined,ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
 import { asyncInvestorDeposit,asyncFetchHistory, asyncRequestWithdrawalAmount, asyncGetReferredUsers, asyncCurrentInvestor, asyncSaveSelectedPackage, asyncFetchActivePackages, asyncLogout } from '../store/actions/userAction';
 import { Table, Spin, Alert } from 'antd'; // Import Ant Design components
-import { BiLogOut, BiWallet } from 'react-icons/bi';
+import { BiDollar, BiLogOut, BiWallet } from 'react-icons/bi';
 import { BsWallet2 } from 'react-icons/bs';
 import { GoPackage } from 'react-icons/go';
 import { IoLogOutOutline, IoWalletOutline } from 'react-icons/io5';
 import { CgProfile } from 'react-icons/cg';
+import {  Typography } from 'antd';
+import { TiUserOutline } from 'react-icons/ti';
+import { MdAccountBalanceWallet, MdEmail, MdLocationOn, MdPerson, MdPhone } from 'react-icons/md';
+import { FaUser } from 'react-icons/fa';
+
+const { Title, Text } = Typography;
 
 // Animation variants
 const cardVariants = {
@@ -42,6 +48,60 @@ const hoverVariants = {
   },
 };
 
+const mobileCardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hover: { scale: 1.1 }
+};
+
+const icons = [
+  { icon: <ArrowUpOutlined className="text-xl" />, title: 'Deposit', path: '/deposit' },
+  { icon: <HistoryOutlined className="text-xl" />, title: 'View History', path: '/view-history' },
+  { icon: <BiDollar className="text-xl" />, title: 'Request Withdrawal', path: '/request-withdrawal' },
+  { icon: <TeamOutlined className="text-xl" />, title: 'Team', path: '/team' },
+  { icon: <BsWallet2 className="text-xl" />, title: 'Wallet', path: '/wallet' },
+  { icon: <GoPackage className="text-xl" />, title: 'Active Packages', path: '/active-packages' },
+  { icon: <CgProfile className="text-xl" />, title: 'Profile', path: '/profile' },
+  { icon: <GoPackage className="text-xl" />, title: 'Choose Package', path: '/choose-package' },
+  { icon: <TeamOutlined className="text-xl" />, title: 'More Options', path: '/more' },
+];
+
+
+const MobileCardView = ({ onCardClick }) => {
+  return (
+    <>
+     <div className="pt-[20px] pb-10 p-4 bg-gradient-to-b from-black via-gray-800 to-gray-500 rounded-lg shadow-lg">
+      <div className="grid grid-cols-2 gap-4">
+       
+        {icons.map((item, index) => (
+          <motion.div
+            key={index}
+            variants={mobileCardVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            className="mt-[18px] flex flex-col items-center justify-center p-6 cursor-pointer bg-white rounded-lg shadow-md transition-transform transform hover:scale-105"
+            onClick={() => {
+              if (item.path === '/logout') {
+                onCardClick(); // Call the logout handler
+              } else {
+                onCardClick(item.path);
+              }
+            }}
+          >
+            <div className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full shadow-md">
+              {item.icon}
+            </div>
+            <span className="text-sm text-black">{item.title}</span>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+    </>
+    
+  );
+};
+
 
 export const InvestorDashboard = () => {
   const navigate = useNavigate();
@@ -51,9 +111,11 @@ export const InvestorDashboard = () => {
     navigate(path);
   };
 
-  const handleLogout =async () => {
+  const handleLogout = async () => {
     await dispatch(asyncLogout(navigate));
   };
+
+  const isMobile = window.innerWidth <= 640; // Adjust this breakpoint as needed
 
   const cards = [
     { title: 'Deposit', icon: <ArrowUpOutlined />, description: 'Add funds to your account', path: '/deposit' },
@@ -69,40 +131,51 @@ export const InvestorDashboard = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen flex justify-center items-center">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
-        {cards.map((card, index) => (
-          <motion.div
-            key={index}
-            variants={cardVariants}
-            initial="hidden"
-            animate="visible"
-            custom={index}
-            whileHover="hover"
-            className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center text-center cursor-pointer"
-            onClick={() => card.path === '/logout' ? handleLogout() : handleCardClick(card.path)}
-          >
-            <Card bordered={false} className="w-full h-full flex flex-col items-center">
+    <>
+      {isMobile ? (
+        <>
+        <ProfileCard/>
+
+        <MobileCardView onCardClick={handleCardClick} />
+        </>
+      ) : (
+        <div className="flex flex-col p-6 bg-gray-100 min-h-screen">
+        <ProfileCard/>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl mx-auto">
+            {cards.map((card, index) => (
               <motion.div
-                className="text-3xl mb-3 text-indigo-600 flex justify-center items-center"
-                variants={hoverVariants}
+                key={index}
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                custom={index}
+                whileHover="hover"
+                className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center text-center cursor-pointer"
+                onClick={() => card.path === '/logout' ? handleLogout() : handleCardClick(card.path)}
               >
-                {card.icon}
+                <Card bordered={false} className="w-full h-full flex flex-col items-center">
+                  <motion.div
+                    className="text-3xl mb-3 text-indigo-600 flex justify-center items-center"
+                    variants={hoverVariants}
+                  >
+                    {card.icon}
+                  </motion.div>
+                  <h3 className="text-xl font-semibold mb-1 text-gray-800">
+                    {card.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {card.description}
+                  </p>
+                </Card>
               </motion.div>
-              <h3 className="text-xl font-semibold mb-1 text-gray-800">
-                {card.title}
-              </h3>
-              <p className="text-sm text-gray-600">
-                {card.description}
-              </p>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-    </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
-
 
   
 const formVariants = {
@@ -449,6 +522,94 @@ export const Package = () => {
 
 
 
+
+const ProfileCard = () => {
+  const { user, isAuth } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  if (!isAuth) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-indigo-400 to-purple-500 text-white text-lg font-semibold">
+        Please log in to view your profile.
+      </div>
+    );
+  }
+
+  const handleUpdateClick = () => {
+    navigate('/profile');
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 ">
+      <Card className="w-full max-w-lg md:max-w-2xl bg-white rounded-xl shadow-xl transform transition-all hover:shadow-2xl mt-12">
+        <div className="flex flex-col md:flex-row items-center md:items-start md:space-x-8">
+          <Avatar
+            size={120}
+            icon={<FaUser />}
+            className="mb-6 md:mb-0 bg-gradient-to-r from-sky-400 to-sky-500 text-white"
+          />
+          <div className="flex flex-col items-center md:items-start w-full">
+            <Title level={2} className="text-center md:text-left mb-4 text-blue-600 font-bold">
+              Welcome, {user.firstName}!
+            </Title>
+            <Title level={4} className="text-center md:text-left mb-4 text-blue-600">
+              Profile Information
+            </Title>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              <div className="flex items-center space-x-2">
+                <MdPerson className="text-blue-600" />
+                <Text strong className="text-gray-600">User ID:</Text>
+                <Text className="text-gray-800">{user.userId}</Text>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MdPerson className="text-blue-600" />
+                <Text strong className="text-gray-600">Referred By:</Text>
+                <Text className="text-gray-800">{user.referredByUserID}</Text>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MdPerson className="text-blue-600" />
+                <Text strong className="text-gray-600">First Name:</Text>
+                <Text className="text-gray-800">{user.firstName}</Text>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MdPerson className="text-blue-600" />
+                <Text strong className="text-gray-600">Last Name:</Text>
+                <Text className="text-gray-800">{user.lastName}</Text>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MdPhone className="text-blue-600" />
+                <Text strong className="text-gray-600">Phone:</Text>
+                <Text className="text-gray-800">{user.phone}</Text>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MdEmail className="text-blue-600" />
+                <Text strong className="text-gray-600 break-keep	">Email:</Text>
+                <Text className="text-gray-800 break-keep	">{user.email}</Text>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MdLocationOn className="text-blue-600" />
+                <Text strong className="text-gray-600">Location:</Text>
+                <Text className="text-gray-800">{user.location}</Text>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MdAccountBalanceWallet className="text-blue-600" />
+                <Text strong className="text-gray-600">Wallet Balance:</Text>
+                <Text className="text-gray-800">{user.wallet}</Text>
+              </div>
+            </div>
+            <Button
+              type="primary"
+              className="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+              onClick={handleUpdateClick}
+            >
+              Update Profile
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
 
 export const Withdraw = () => {
     const [amount, setAmount] = useState('');

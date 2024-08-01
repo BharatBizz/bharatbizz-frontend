@@ -15,6 +15,10 @@ export default {
         errorRed: '#E91E63', // Error Red
         successGreen: '#4CAF50' // Success Green
       },
+        backgroundImage: {
+          'tricolor-gradient': 'linear-gradient(to right, #FF5733, #FFC300, #DAF7A6)',
+        
+      },
     },
   },
   plugins: [],

@@ -6,8 +6,9 @@ import { motion } from 'framer-motion';
 import { asyncCurrentInvestor, asyncInvestorLogin, asyncInvestorRegister, asyncResetPassword, asyncSendForgetLink, asyncUpdateProfile } from '../store/actions/userAction';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const generateUserId = () => {
   const prefix = 'BBZ';
   const randomNumber = crypto.getRandomValues(new Uint32Array(1))[0] % 10000; // Generates a random 4-digit number
@@ -352,7 +353,7 @@ export const Profile = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+      <Card className="mt-[100px] w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Your Profile</h2>
         <Form
           form={form}
@@ -417,3 +418,7 @@ export const Profile = () => {
     </div>
   );
 };
+
+
+
+

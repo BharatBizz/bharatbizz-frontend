@@ -152,6 +152,7 @@ export const asyncSaveSelectedPackage=(userId,amount,referredByUserID)=>async(di
 
 export const asyncFetchActivePackages=(userId)=>async(dispatch,getState)=>{
     try {
+        const token=localStorage.getItem('token')
         const response=await axios.get(`/user/getActivePackages/${userId}`,{
             headers:{Authorization:`Bearer ${token}`}
         })
