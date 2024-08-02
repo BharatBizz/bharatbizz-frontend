@@ -112,13 +112,7 @@ export const InvestorLoginForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const openNotification = (type, message) => {
-    notification[type]({
-      message,
-      placement: 'topRight',
-      duration: 3,
-    });
-  };
+  
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -126,6 +120,7 @@ export const InvestorLoginForm = () => {
       await dispatch(asyncInvestorLogin(values, navigate));
       form.resetFields();
     } catch (error) {
+      console.log(error)
     } finally {
       setLoading(false);
     }

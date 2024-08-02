@@ -54,17 +54,28 @@ export const asyncInvestorRegister = (data) => async (dispatch, getState) => {
 
 export const asyncInvestorLogin = (data, navigate) => async (dispatch, getState) => {
     try {
+        const openNotification = (type, message) => {
+            notification[type]({
+              message,
+              placement: 'topRight',
+              duration: 3,
+            });
+          };
         const res = await axios.post('/user/login', data);
         console.log(res.data);
         await dispatch(asyncCurrentInvestor(res.data.token));
         const expiresInMilliseconds = res.data.expiresIn;
         const expirationTime = Date.now() + expiresInMilliseconds;
         localStorage.setItem('token', res.data.token);
+        openNotification('success', 'Login successful!');
+
         await navigate('/investor/dashboard')
     } catch (error) {
         if (error.response && error.response.status === 401) {
         } else {
             console.error(error);
+            openNotification('error', 'Login failed! Please try again.');
+
         }
     }
 };
