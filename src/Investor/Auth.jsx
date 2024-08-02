@@ -125,9 +125,7 @@ export const InvestorLoginForm = () => {
     try {
       await dispatch(asyncInvestorLogin(values, navigate));
       form.resetFields();
-      openNotification('success', 'Login successful!');
     } catch (error) {
-      openNotification('error', 'Login failed! Please try again.');
     } finally {
       setLoading(false);
     }
