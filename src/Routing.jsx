@@ -32,8 +32,8 @@ const Routing=()=>{
         <Route path='/request-withdrawal' element={isInvestor?<Withdraw/>:<UnauthorizedPage/>}/>
         <Route path='/withdrawal-request' element={isAdmin?<WithdrawalRequest/>:<UnauthorizedPage/>}/>
         <Route path='/team' element={isInvestor?<YourTeam/>:<UnauthorizedPage/>}/>
-        <Route path='/forget-link/:id' element={isInvestor?<ResetPassword/>:<UnauthorizedPage/>}/>
-        <Route path='/forget-password' element={isInvestor?<ForgetPassword/>:<UnauthorizedPage/>}/>
+        <Route path='/forget-link/:id' element={<ResetPassword/>}/>
+        <Route path='/forget-password' element={<ForgetPassword/>}/>
         <Route path='*' element={<NotFound/>}/>
         <Route path='/profile' element={isInvestor?<Profile/>:<UnauthorizedPage/>}/>
     </Routes>
